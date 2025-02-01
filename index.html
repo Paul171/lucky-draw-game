@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>線上抽籤遊戲</title>
+    <style>
+        :root {
+            --main-color: #d4af37;
+            --bg-color: #f5edd6;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .shake-animation {
+            animation: shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-8px); }
+            40%, 60% { transform: translateX(8px); }
+        }
+
+        .sign-bottle {
+            width: 150px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin: 30px 0;
+        }
+
+        .sign-bottle:hover {
+            transform: scale(1.05);
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 20px auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .show-result {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fortune-text {
+            font-size: 2em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .luck-level {
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 10px 0;
+            color: white;
+        }
+
+        /* 不同籤運的顏色 */
+        .大吉 { background: #e74c3c; }
+        .中吉 { background: #e67e22; }
+        .小吉 { background: #2ecc71; }
+        .末吉 { background: #3498db; }
+        .凶 { background: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>線上靈籤占卜</h1>
+        <img src="assets/draw2.gif" 
+             class="sign-bottle" 
+             alt="籤筒"
+             onclick="drawFortune()">
+        <div id="result" class="result-card"></div>
+    </div>
+
+    <script>
+        const fortunes = [
+            {
+                level: "大吉",
+                description: "旭日昇天際，祥雲照四方，<br>萬事皆如意，福壽自安康。",
+                probability: 0.1
+            },
+            {
+                level: "中吉",
+                description: "明月當空照，清風拂面來，<br>但行平常事，自有好運開。",
+                probability: 0.2
+            },
+            {
+                level: "小吉",
+                description: "春風拂楊柳，細雨潤新苗，<br>循序漸進處，自然得豐饒。",
+                probability: 0.3
+            },
+            {
+                level: "末吉",
+                description: "雲開月漸明，守得見天晴，<br>堅持終有報，慎行保安寧。",
+                probability: 0.25
+            },
+            {
+                level: "凶",
+                description: "浮雲遮望眼，謹慎莫妄為，<br>守得雲開日，方見月明時。",
+                probability: 0.15
+            }
+        ];
+
+        function drawFortune() {
+            const signBottle = document.querySelector('.sign-bottle');
+            const resultDiv = document.getElementById('result');
+            
+            // 重置結果顯示
+            resultDiv.classList.remove('show-result');
+            signBottle.classList.add('shake-animation');
+
+            // 隨機抽籤（帶權重）
+            setTimeout(() => {
+                const random = Math.random();
+                let cumulativeProb = 0;
+                let selectedFortune;
+                
+                for (const fortune of fortunes) {
+                    cumulativeProb += fortune.probability;
+                    if (random <= cumulativeProb) {
+                        selectedFortune = fortune;
+                        break;
+                    }
+                }
+
+                // 顯示結果
+                resultDiv.innerHTML = `
+                    <div class="luck-level ${selectedFortune.level}">${selectedFortune.level}</div>
+                    <div class="fortune-text">${selectedFortune.level}</div>
+                    <div class="description">${selectedFortune.description}</div>
+                `;
+                
+                signBottle.classList.remove('shake-animation');
+                resultDiv.classList.add('show-result');
+                
+                // 特殊效果
+                if(selectedFortune.level === "大吉") {
+                    document.body.style.background = "linear-gradient(45deg, #f6e58d, #ffbe76)";
+                } else if(selectedFortune.level === "凶") {
+                    document.body.style.animation = "vibrate 0.3s linear";
+                    setTimeout(() => {
+                        document.body.style.animation = "";
+                    }, 300);
+                }
+            }, 800);
+        }
+
+        // 初始化點擊效果
+        document.querySelector('.sign-bottle').addEventListener('click', drawFortune);
+    </script>
+</body>
+</html>
